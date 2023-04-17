@@ -1,0 +1,86 @@
+from skimage.io import imread, imshow
+from skimage import transform
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
+import math
+from PIL import Image
+
+PATHDENSITY = 9             #odd numbers only ----true paths will be floor(PATHDENSITY/2)-1
+DARKNESSTHRESHOLD = 0.3     #value from 0 to 1 where 0 means a "shadow" must be completely black. 0.5 would mean a "shadow" would be 50% grey. higher
+                            #value increases sensitivity to darkness
+SHADOWDENSITY = 5           #pixels found in a row that match shadow threshold before rover decides it's big enough to consider a "shadow"
+
+if __name__ == "__main__":
+
+    test = "test3.png"
+    testArr = imread(test, as_gray = True)
+    print("first")
+    print(testArr)
+    plt.imshow(testArr, cmap = cm.gray)
+    plt.show()
+
+    rows, cols = testArr.shape
+
+    startX = math.floor(cols/2)
+    startY = rows - 1
+
+    tracker = 0        #keeps track of light value of path and used to evaluate
+    darkCounter = 0     #looks for shadows in path
+    vals = range(PATHDENSITY)
+    slope = 0 - math.floor(PATHDENSITY/2)
+    for i in vals:
+
+        tracker = 0
+        darkCounter = 0
+        indX = startX
+        indY = startY
+        while (indX>0 and indX<(cols) and indY>0 and indY<(rows)):
+            if testArr[indY][indX] < DARKNESSTHRESHOLD:
+                darkCounter += 1
+            if darkCounter > SHADOWDENSITY:
+                break
+            testArr[indY][indX] = 0 #-----test
+            indX += slope
+            indY -= 1
+        #TODO - save path
+
+        tracker = 0
+        darkCounter = 0
+        indX = startX
+        indY = startY
+        while (indX>0 and indX<(cols) and indY>0 and indY<(rows)):
+            if testArr[indY][indX] < DARKNESSTHRESHOLD:
+                darkCounter += 1
+            if darkCounter > SHADOWDENSITY:
+                break
+            testArr[indY][indX] = 0 #-----test
+            indX  += 1
+            indY -= slope
+        #TODO - save path
+
+        tracker = 0
+        darkCounter = 0
+        indX = startX
+        indY = startY
+        while (indX>0 and indX<(cols) and indY>0 and indY<(rows)):
+            if testArr[indY][indX] < DARKNESSTHRESHOLD:
+                darkCounter += 1
+            if darkCounter > SHADOWDENSITY:
+                break
+            testArr[indY][indX] = 0 #-----test
+            indX  -= 1
+            indY -= slope
+        #TODO - save path
+
+        slope += 1
+
+    print("second")
+    print(testArr)
+    fig, ax = plt.subplots()
+    ax.axis('off')
+    plt.imshow(testArr, cmap = cm.gray)
+    plt.savefig('NewPlane2.jpg', bbox_inches='tight', pad_inches=0)
+    Image.open('NewPlane2.jpg').convert('L').save('NewGrayPlane2.jpg')
+    #plt.show()
+    plt.show()
