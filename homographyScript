@@ -1,0 +1,40 @@
+from skimage.io import imread, imshow
+from skimage import transform
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
+from PIL import Image
+
+if __name__ == "__main__":
+
+	plane = "plane1.jpg"
+	color = imread(plane)
+	gray = imread(plane, as_gray = True)
+	plt.imshow(color)
+	plt.show()
+	#plt.imshow(gray, cmap = cm.gray)
+	#plt.show()
+
+	#source coordinates
+	src = np.array([163, 496, 	#top left
+	631, 507,					#top right
+	5, 995,						#bot left
+	750, 995,]).reshape((4, 2))	#bot right
+
+	#destination coordinates
+	dst = np.array([5, 5, 		#5, 5,
+	750, 5,						#750, 5,
+	220, 995,					#187, 974,
+	500, 995,]).reshape((4, 2))	#537, 974,
+
+	#using skimage’s transform module where ‘projective’ is our desired parameter
+	tform = transform.estimate_transform('projective', src, dst)
+	tf_img = transform.warp(color, tform.inverse)
+
+	#plotting the transformed image
+	fig, ax = plt.subplots()
+	ax.imshow(tf_img)
+	ax.axis('off')
+	plt.savefig('NewPlane2.jpg', bbox_inches='tight', pad_inches=0)
+	Image.open('NewPlane2.jpg').convert('L').save('NewGrayPlane2.jpg')
+	#plt.show()
